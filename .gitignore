@@ -1,0 +1,13 @@
+**/__pycache__/*
+/bin/
+/lib/
+/lib64
+/pyvenv.cfg
+/share/
+/pip-selfcheck.json
+/downloads
+*.csv
+*.log
+/PythonImageDownloader.egg-info
+/build
+/dist
