@@ -61,7 +61,7 @@ user@pixolution:~$ pxl_downloader --help
 usage: pxl_downloader [-h] [--threads THREADS] [--verbose]
                       {download,status} ... image_list_file download_folder
 
-Lightweight mass image url downloader written in Python3.
+Lightweight mass image downloader written in Python3.
 
 positional arguments:
   {download,status}  available commands
@@ -77,7 +77,7 @@ optional arguments:
   --verbose          Show each image url to download in stdout instead of
                      default progress bar
 
-♥ Crafted with love in Berlin by pixolution.de ♥
+♥ Crafted with love in Berlin by pixolution.org ♥
 ```
 
 Download options:
