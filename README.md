@@ -43,10 +43,9 @@ Install the project into your local system as symlinked source:
 python3 setup.py install
 ```
 
-After install it is available as **pxl_downloader** in your systems CLI:
+After install it is available as **pxl_downloader** in your systems CLI. Use it like this:
 ```bash
-
-
+pxl_downloader --threads=8 download --tarfile --ratelimit-interval=2 --ratelimit-downloads=50 samples.csv downloads/
 ```
 
 Deinstall it with:
@@ -56,7 +55,7 @@ python3 setup.py uninstall
 
 
 
-## Use it via **run.sh** script
+## Use it via **run.sh** script in project root or with **pxl_downloader** command after install
 ```bash
 user@pixolution:~$ pxl_downloader --help
 usage: pxl_downloader [-h] [--threads THREADS] [--verbose]
