@@ -1,4 +1,4 @@
-# PixolutionImageDownloader
+# Pixolution Image Downloader
 
 Lightweight mass image downloader written in Python3 by [pixolution.org](https://pixolution.org)
 
