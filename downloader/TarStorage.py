@@ -7,6 +7,7 @@ class TarStorage:
 
     def __init__(self,list_file_name,outdir):
         self.tar_name=os.path.join(outdir,os.path.basename(list_file_name)+"_images.tar")
+        print("store downloads into tar file: "+self.tar_name)
 
     """
     Allows together with __exit__ to use this class in with statements.

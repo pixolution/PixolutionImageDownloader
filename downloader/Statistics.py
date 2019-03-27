@@ -27,6 +27,12 @@ class Stats:
         self.numSuccess+=1
 
     @synchronized
+    def printSumUpEvery(self,count):
+        numTotal=self.numSuccess+self.numFailure+self.numInvalid+self.numSkipped
+        if numTotal % count == 0:
+            self.printSumUp()
+
+    @synchronized
     def printSumUp(self):
-        numTotal=self.numSuccess+self.numFailure+self.numInvalid
-        print("\nSuccess: %s  Failure: %s  Invalid: %s  Skipped: %s Total: %s\n" % (self.numSuccess,self.numFailure,self.numInvalid,self.numSkipped,numTotal))
+        numTotal=self.numSuccess+self.numFailure+self.numInvalid+self.numSkipped
+        print("\nSuccess: %s  Failure: %s  Invalid lines in file: %s  Skipped existing: %s Total: %s\n" % (self.numSuccess,self.numFailure,self.numInvalid,self.numSkipped,numTotal))

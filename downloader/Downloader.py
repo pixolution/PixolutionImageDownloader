@@ -35,57 +35,14 @@ class Downloader:
         RateLimiter.instance().setup(self.ratelimit_downloads,self.ratelimit_interval)
         print("start downloading of list "+list_file+" with "+str(self.number_threads)+" threads")
         if self.store_into_tar:
+            # tarfile storage
             with TarStorage(list_file,self.downloads_folder) as tar:
                 self.tarfile=tar
-                # open url file
-                with open(list_file,'r') as lf:
-                    if self.verbose:
-                        with concurrent.futures.ThreadPoolExecutor(self.number_threads) as executor:
-                            # let download_image print each url (verbose)
-                            for line in lf:
-                                line=line.rstrip('\n').strip()
-                                if len(line)>0:
-                                    executor.submit(self.__download_image, line)
-                                else:
-                                    self.stats.registerInvalid()
-                    else:
-                        # show tqdm progress bar (not verbose)
-                        urls=list()
-                        for line in lf:
-                            line=line.rstrip('\n').strip()
-                            if len(line)>0:
-                                # create tuples list with params so we can use executor.map(funct,iteratable)
-                                urls.append(line)
-                            else:
-                                self.stats.registerInvalid()
-                        # start thread pool as iterateable with progress bar
-                        with concurrent.futures.ThreadPoolExecutor(self.number_threads) as executor:
-                            list(tqdm(executor.map(self.__download_image,urls), total=len(urls)))
+                self.__download_list(list_file)
         else:
-            # open url file
-            with open(list_file,'r') as lf:
-                if self.verbose:
-                    with concurrent.futures.ThreadPoolExecutor(self.number_threads) as executor:
-                        # let download_image print each url (verbose)
-                        for line in lf:
-                            line=line.rstrip('\n').strip()
-                            if len(line)>0:
-                                executor.submit(self.__download_image, line)
-                            else:
-                                self.stats.registerInvalid()
-                else:
-                    # show tqdm progress bar (not verbose)
-                    urls=list()
-                    for line in lf:
-                        line=line.rstrip('\n').strip()
-                        if len(line)>0:
-                            # create tuples list with params so we can use executor.map(funct,iteratable)
-                            urls.append(line)
-                        else:
-                            self.stats.registerInvalid()
-                    # start thread pool as iterateable with progress bar
-                    with concurrent.futures.ThreadPoolExecutor(self.number_threads) as executor:
-                        list(tqdm(executor.map(self.__download_image,urls), total=len(urls)))
+            print("store downloads into file tree: "+self.downloads_folder)
+            self.__download_list(list_file)
+        print("Processing finished:")
         self.stats.printSumUp()
 
     """
@@ -114,7 +71,9 @@ class Downloader:
         # check if it already exists
         if os.path.isfile(outfile):
             self.stats.registerSkipped()
-            print("\t",threading.get_ident()," skip existing ",url)
+            if self.verbose:
+                print("\t<"+threading.current_thread().name+" skip existing ",url)
+                self.stats.printSumUpEvery(25)
             return
         # respect the rate limit
         RateLimiter.instance().acquire()
@@ -136,13 +95,31 @@ class Downloader:
         except:
             self.stats.registerFailure()
             self.logger.info(url)
+            if self.verbose:
+                print("\t<"+threading.current_thread().name+" download failed: ",url)
+        finally:
+            if self.verbose:
+                self.stats.printSumUpEvery(25)
 
 
     """
     Download the given list of urls into the outfolder as filetree or tar_file
     """
-    def __download_list(list_file,tar_file=None):
-        pass
+    def __download_list(self,list_file):
+        # open url file
+        with open(list_file,'r') as lf:
+            # show tqdm progress bar (not verbose)
+            urls=list()
+            for line in lf:
+                line=line.rstrip('\n').strip()
+                if len(line)>0:
+                    # create tuples list with params so we can use executor.map(funct,iteratable)
+                    urls.append(line)
+                else:
+                    self.stats.registerInvalid()
+            # start thread pool as iterateable with progress bar
+            with concurrent.futures.ThreadPoolExecutor(self.number_threads) as executor:
+                list(tqdm(iterable=executor.map(self.__download_image,urls), total=len(urls),disable=self.verbose))
 
 
     """
