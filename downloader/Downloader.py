@@ -119,6 +119,7 @@ class Downloader:
                     urls.append(line)
                 else:
                     self.stats.registerInvalid()
+            print("threadpool starts to download now")
             # start thread pool as iterateable with progress bar
             with concurrent.futures.ThreadPoolExecutor(self.number_threads) as executor:
                 list(tqdm(iterable=executor.map(self.__download_image,urls), total=len(urls),disable=self.verbose))

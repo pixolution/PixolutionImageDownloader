@@ -1,6 +1,7 @@
 #!bin/python3
 # -*- coding: utf-8 -*-1
 from downloader.ThreadSafe import synchronized
+import time
 
 class Stats:
 
@@ -9,6 +10,7 @@ class Stats:
         self.numSuccess=0
         self.numFailure=0
         self.numSkipped=0
+        self.start_time=None
 
     @synchronized
     def registerSkipped(self):
@@ -24,6 +26,8 @@ class Stats:
 
     @synchronized
     def registerSuccess(self):
+        if self.start_time==None:
+            self.start_time=time.time()
         self.numSuccess+=1
 
     @synchronized
@@ -35,4 +39,7 @@ class Stats:
     @synchronized
     def printSumUp(self):
         numTotal=self.numSuccess+self.numFailure+self.numInvalid+self.numSkipped
-        print("\nSuccess: %s  Failure: %s  Invalid lines in file: %s  Skipped existing: %s Total: %s\n" % (self.numSuccess,self.numFailure,self.numInvalid,self.numSkipped,numTotal))
+        duration=time.time() - self.start_time
+        rate=round(float(numTotal)/float(duration))
+        print("\nOk: %s  Fail: %s  Empty lines: %s  Skipped: %s Total: %s Running=%ss Rate=%s #/s\n" % (self.numSuccess,self.numFailure,self.numInvalid,self.numSkipped,numTotal,round(duration),rate))
+        print("")
