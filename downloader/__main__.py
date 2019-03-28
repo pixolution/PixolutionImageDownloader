@@ -24,7 +24,7 @@ def parse_parameters():
     subparsers = parser.add_subparsers(help="available commands")
     subparsers.required = True
     subparsers.dest = "command"
-    parser.add_argument("--threads",help="Number of threads to download or status check in parallel", dest="threads", default=8,required=False)
+    parser.add_argument("--threads",help="Number of threads to download or status check in parallel",type=int, dest="threads", default=8,required=False)
     parser.add_argument("--verbose",help="Show each image url to download in stdout instead of default progress bar", dest="verbose", default=False,required=False,action="store_true")
     parser_download = subparsers.add_parser("download", help="Download a list of images")
     parser_download.add_argument("--tarfile",help="Store downloaded images directly into tarfile instead of file structure", dest="tarfile", default=False,required=False,action="store_true")
