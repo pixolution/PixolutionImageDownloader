@@ -100,6 +100,8 @@ class Downloader:
         finally:
             if self.verbose:
                 self.stats.printSumUpEvery(25)
+            else:
+                self.stats.printSumUpEvery(100)
 
 
     """
