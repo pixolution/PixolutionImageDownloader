@@ -14,7 +14,7 @@ class TarStorage:
     Open the tar file handle.
     """
     def __enter__(self):
-        self.tarfile=tarfile.open(self.tar_name,'w:')
+        self.tarfile=tarfile.open(self.tar_name,'a:')
         return self.tarfile
 
     """

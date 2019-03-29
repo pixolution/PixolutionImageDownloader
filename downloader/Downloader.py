@@ -74,14 +74,24 @@ class Downloader:
         # define outdir and outfile name
         outdir=os.path.join(self.downloads_folder,os.path.dirname(img_contextpath))
         outfile=os.path.join(self.downloads_folder,img_contextpath)
+        does_exist=False
+        if self.store_into_tar:
+            try:
+                self.tarfile.getmember(img_contextpath)
+                does_exist=True
+            except KeyError:
+                pass
+        else:
         # check if it already exists
-        if os.path.isfile(outfile):
+            does_exist=os.path.isfile(outfile)
+        if does_exist:
             self.stats.registerSkipped()
             if self.verbose:
                 print("\t<"+threading.current_thread().name+" skip existing ",url)
                 self.stats.printSumUpEvery(25)
             else:
                 self.stats.printSumUpEvery(100)
+            return
         # respect the rate limit
         RateLimiter.instance().acquire()
         if self.verbose:
@@ -111,7 +121,6 @@ class Downloader:
                 if not self.progressbar:
                     self.stats.printSumUpEvery(100)
 
-
     """
     Download the given list of urls into the outfolder as filetree or tar_file
     """
@@ -126,13 +135,9 @@ class Downloader:
                     for url in urls:
                         urls_list.append(url)
                     list(tqdm(iterable=executor.map(self.__download_image,urls_list), total=len(urls_list),disable=self.verbose))
-#                    tqdm(iterable=executor.map(self.__download_image,urls))
                 else:
                     for url in urls:
                         executor.submit(self.__download_image,url)
-
-
-
 
     """
     Read the url list, extract all image download pathes and
