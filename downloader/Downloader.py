@@ -50,7 +50,7 @@ class Downloader:
     Open a output file for the failed urls using logger (thread safe)
     """
     def __init_error_url_list(self,list_file):
-        logpath=list_file+"_errors.log"
+        logpath=os.path.join(self.downloads_folder,os.path.basename(list_file)+"_errors.log")
         # emtpy file
         open(logpath, 'w').close()
         self.logger = logging.getLogger('log')
