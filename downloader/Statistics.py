@@ -13,6 +13,10 @@ class Stats:
         self.start_time=None
 
     @synchronized
+    def start(self):
+        self.start_time=time.time()
+
+    @synchronized
     def registerSkipped(self):
         self.numSkipped+=1
 
@@ -26,8 +30,6 @@ class Stats:
 
     @synchronized
     def registerSuccess(self):
-        if self.start_time==None:
-            self.start_time=time.time()
         self.numSuccess+=1
 
     @synchronized

@@ -34,6 +34,7 @@ class Downloader:
         # configure RateLimier (number_of_actions, interval)
         RateLimiter.instance().setup(self.ratelimit_downloads,self.ratelimit_interval)
         print("start downloading of list "+list_file+" with "+str(self.number_threads)+" threads")
+        self.stats.start()
         if self.store_into_tar:
             # tarfile storage
             with TarStorage(list_file,self.downloads_folder) as tar:
@@ -63,6 +64,10 @@ class Downloader:
     if it is stored in filetree or tarfile
     """
     def __download_image(self,url):
+        url=url.rstrip('\n').strip()
+        if not len(url)>0:
+            self.stats.registerInvalid()
+            return
     #    print("download_image",url)
         img_contextpath=urlparse(url).path[1:]
         # define outdir and outfile name
@@ -74,7 +79,8 @@ class Downloader:
             if self.verbose:
                 print("\t<"+threading.current_thread().name+" skip existing ",url)
                 self.stats.printSumUpEvery(25)
-            return
+            else:
+                self.stats.printSumUpEvery(100)
         # respect the rate limit
         RateLimiter.instance().acquire()
         if self.verbose:
@@ -109,20 +115,15 @@ class Downloader:
     """
     def __download_list(self,list_file):
         # open url file
-        with open(list_file,'r') as lf:
-            # show tqdm progress bar (not verbose)
-            urls=list()
-            for line in lf:
-                line=line.rstrip('\n').strip()
-                if len(line)>0:
-                    # create tuples list with params so we can use executor.map(funct,iteratable)
-                    urls.append(line)
-                else:
-                    self.stats.registerInvalid()
+        with open(list_file,'r') as urls:
             print("threadpool starts to download now")
             # start thread pool as iterateable with progress bar
             with concurrent.futures.ThreadPoolExecutor(self.number_threads) as executor:
-                list(tqdm(iterable=executor.map(self.__download_image,urls), total=len(urls),disable=self.verbose))
+                for url in urls:
+                    executor.submit(self.__download_image,url)
+#                #list(tqdm(iterable=executor.map(self.__download_image,urls), total=len(urls),disable=self.verbose))
+#                tqdm(iterable=executor.map(self.__download_image,urls))
+             
 
 
     """
