@@ -108,7 +108,8 @@ class Downloader:
             if self.verbose:
                 self.stats.printSumUpEvery(25)
             else:
-                self.stats.printSumUpEvery(100)
+                if not self.progressbar:
+                    self.stats.printSumUpEvery(100)
 
 
     """
