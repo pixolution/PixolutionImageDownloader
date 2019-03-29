@@ -28,6 +28,7 @@ def parse_parameters():
     parser.add_argument("--verbose",help="Show each image url to download in stdout instead of default progress bar", dest="verbose", default=False,required=False,action="store_true")
     parser_download = subparsers.add_parser("download", help="Download a list of images")
     parser_download.add_argument("--tarfile",help="Store downloaded images directly into tarfile instead of file structure", dest="tarfile", default=False,required=False,action="store_true")
+    parser_download.add_argument("--progressbar",help="Show a tqdm progress bar. This needs more RAM because we need to put the image file list into RAM before we can start.", dest="progressbar", default=False,required=False,action="store_true")
     parser_download.add_argument("--ratelimit-interval",type=int,help="Interval in seconds (minimum 1.0) for the rate limiter. Default is 1.0 seconds.", dest="ratelimit_interval", default=1.0,required=False)
     parser_download.add_argument("--ratelimit-downloads",type=int,help="Number of downloads per interval (default interval 1 second). If negative no rate limit is applied. Default is -1", dest="ratelimit_downloads", default=-1,required=False)
     parser_status = subparsers.add_parser("status", help="Check the download folder and the given image list file and print some stats about that")
@@ -56,10 +57,10 @@ def main(args=None):
         print("The given path "+image_list_file+" is not a file. Abort.")
         sys.exit(1)
     if (args.command == "download"):
-        downloader=Downloader(download_folder,args.threads,args.ratelimit_downloads,args.ratelimit_interval,args.verbose,args.tarfile)
+        downloader=Downloader(download_folder,args.threads,args.ratelimit_downloads,args.ratelimit_interval,args.verbose,args.tarfile,args.progressbar)
         downloader.download_list(image_list_file)
     elif (args.command == "status"):
-        downloader=Downloader(download_folder,args.threads,args.ratelimit_downloads,args.ratelimit_interval,args.verbose)
+        downloader=Downloader(download_folder,args.threads,args.ratelimit_downloads,args.ratelimit_interval,args.verbose,args.tarfile,args.progressbar)
         downloader.check_status(image_list_file,download_folder,args.threads)
     else:
         print("Command not known: "+args.command)

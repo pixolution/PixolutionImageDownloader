@@ -61,14 +61,11 @@ class RateLimiter(SingletonMixin):
         # else process the acquire request, and block until token is available
         current = self.now()
         time_passed = current - self.last_check
+        self.last_check = current
         self.allowance += time_passed * (self.rate / self.per)
-        if (self.allowance > self.rate):
+        if self.allowance > self.rate:
             self.allowance = self.rate
-        if (self.allowance < 1.0):
+        self.allowance -= 1.0
+        if self.allowance < 1.0:
             # wait until next bucket is available
             time.sleep( (1-self.allowance) * (self.per/self.rate))
-            # correct the last_check variable
-            self.last_check+=((1-self.allowance) * (self.per/self.rate))
-        else:
-            self.allowance -= 1.0;
-            self.last_check = current

@@ -17,7 +17,7 @@ from downloader.TarStorage import TarStorage
 
 class Downloader:
 
-    def __init__(self,downloads_folder, number_threads, ratelimit_downloads, ratelimit_interval,verbose,store_into_tar=False):
+    def __init__(self,downloads_folder, number_threads, ratelimit_downloads, ratelimit_interval,verbose,store_into_tar,progressbar):
         self.downloads_folder=downloads_folder
         self.number_threads=number_threads
         self.ratelimit_downloads=ratelimit_downloads
@@ -25,6 +25,7 @@ class Downloader:
         self.verbose=verbose
         self.stats=Stats()
         self.store_into_tar=store_into_tar
+        self.progressbar=progressbar
 
     """
     Download the given list of urls
@@ -119,11 +120,17 @@ class Downloader:
             print("threadpool starts to download now")
             # start thread pool as iterateable with progress bar
             with concurrent.futures.ThreadPoolExecutor(self.number_threads) as executor:
-                for url in urls:
-                    executor.submit(self.__download_image,url)
-#                #list(tqdm(iterable=executor.map(self.__download_image,urls), total=len(urls),disable=self.verbose))
-#                tqdm(iterable=executor.map(self.__download_image,urls))
-             
+                if self.progressbar:
+                    urls_list=list()
+                    for url in urls:
+                        urls_list.append(url)
+                    list(tqdm(iterable=executor.map(self.__download_image,urls_list), total=len(urls_list),disable=self.verbose))
+#                    tqdm(iterable=executor.map(self.__download_image,urls))
+                else:
+                    for url in urls:
+                        executor.submit(self.__download_image,url)
+
+
 
 
     """

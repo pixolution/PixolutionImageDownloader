@@ -43,5 +43,5 @@ class Stats:
         numTotal=self.numSuccess+self.numFailure+self.numInvalid+self.numSkipped
         duration=time.time() - self.start_time
         rate=round(float(numTotal)/float(duration))
-        print("\nOk: %s  Fail: %s  Empty lines: %s  Skipped: %s Total: %s Running=%ss Rate=%s #/s\n" % (self.numSuccess,self.numFailure,self.numInvalid,self.numSkipped,numTotal,round(duration),rate))
+        print("Ok: %s  Fail: %s  Empty lines: %s  Skipped: %s Total: %s Running=%ss Rate=%s #/s\n" % (self.numSuccess,self.numFailure,self.numInvalid,self.numSkipped,numTotal,round(duration),rate))
         print("")
