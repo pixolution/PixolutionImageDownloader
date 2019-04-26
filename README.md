@@ -1,6 +1,6 @@
 # Pixolution Image Downloader
 
-Lightweight mass image downloader written in Python3 by [pixolution.org](https://pixolution.org)
+Lightweight bulk image url list downloader written in Python3 by [pixolution.org](https://pixolution.org)
 
 It provides the following features:
 * RateLimiter with throttling max downloads per interval using a simple token bucket algorithm without queue
