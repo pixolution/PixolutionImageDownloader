@@ -38,7 +38,7 @@ python3 setup.py develop
 ```
 
 ## Install
-Install the project into your local system as symlinked source:
+Install the project into your local system:
 ```bash
 python3 setup.py install
 ```
