@@ -10,6 +10,12 @@ It provides the following features:
 * Can store images into download folder tree or directly into a tar file
 * Download progress bar with downloads/second (using tqdm)
 
+## Develop
+
+Install the project into your local system as symlinked source:
+```bash
+python3 setup.py develop
+```
 ## virtual environment
 
 You should use venv when working on the project.
@@ -30,16 +36,16 @@ source bin/activate
 deactivate
 ```
 
-## Develop
+## Install
 
-Install the project into your local system as symlinked source:
+Install requirements:
 ```bash
-python3 setup.py develop
+sudo apt install python3-setuptools python3-pip
 ```
 
-## Install
 Install the project into your local system:
 ```bash
+cd PixolutionImageDownloader/
 python3 setup.py install
 ```
 
