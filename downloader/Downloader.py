@@ -10,9 +10,12 @@ from tqdm import tqdm
 import logging
 import tempfile
 
+from downloader.ThreadSafe import synchronized
 from downloader.RateLimiter import RateLimiter
 from downloader.Statistics import Stats
 from downloader.TarStorage import TarStorage
+
+from downloader.Errors import FileExists,DownloadFailed
 
 
 class Downloader:
@@ -69,57 +72,83 @@ class Downloader:
         if not len(url)>0:
             self.stats.registerInvalid()
             return
-    #    print("download_image",url)
+        if self.verbose:
+            print("download_image",url)
         img_contextpath=urlparse(url).path[1:]
-        # define outdir and outfile name
-        outdir=os.path.join(self.downloads_folder,os.path.dirname(img_contextpath))
-        outfile=os.path.join(self.downloads_folder,img_contextpath)
-        does_exist=False
-        if self.store_into_tar:
-            try:
-                self.tarfile.getmember(img_contextpath)
-                does_exist=True
-            except KeyError:
-                pass
-        else:
-        # check if it already exists
-            does_exist=os.path.isfile(outfile)
-        if does_exist:
+        try:
+            if self.store_into_tar:
+                self.__download_file_into_tar(img_contextpath,url)
+            else:
+                self.__download_file_into_filetree(img_contextpath,url)
+            self.stats.registerSuccess()
+        except FileExists:
             self.stats.registerSkipped()
             if self.verbose:
                 print("\t<"+threading.current_thread().name+" skip existing ",url)
-                self.stats.printSumUpEvery(25)
+                self.stats.printSumUpEvery(15)
             else:
                 self.stats.printSumUpEvery(100)
-            return
-        # respect the rate limit
-        RateLimiter.instance().acquire()
-        if self.verbose:
-            print("\t<"+threading.current_thread().name+"> download ",url)
-        # download the file and put into outdir
-        try:
-            if self.store_into_tar:
-                tmp_file=tempfile.NamedTemporaryFile().name
-                urllib.request.urlretrieve(url,tmp_file)
-                self.tarfile.add(tmp_file,img_contextpath)
-                os.remove(tmp_file)
-            else:
-                # make sure the outfolder exists
-                if not os.path.exists(outdir):
-                    os.makedirs(outdir)
-                urllib.request.urlretrieve(url,outfile)
-            self.stats.registerSuccess()
-        except:
+        except DownloadFailed:
             self.stats.registerFailure()
             self.logger.info(url)
             if self.verbose:
                 print("\t<"+threading.current_thread().name+" download failed: ",url)
+        except Exception as e:
+            print(str(e))
+            self.stats.registerFailure()
+            self.logger.info(url)
+            if self.verbose:
+                print("\t<"+threading.current_thread().name+" unknown failure: ",url,str(e))
         finally:
             if self.verbose:
                 self.stats.printSumUpEvery(25)
             else:
                 if not self.progressbar:
                     self.stats.printSumUpEvery(100)
+
+    """
+    Download the given url into the tarfile
+    """
+    def __download_file_into_tar(self,img_contextpath,url):
+        try:
+            self.tarfile.getmember(img_contextpath)
+            return true
+        except KeyError:
+            raise FileExists
+        # respect the rate limit
+        RateLimiter.instance().acquire()
+        if self.verbose:
+            print("\t<"+threading.current_thread().name+"> download ",url)
+        tmp_file=tempfile.NamedTemporaryFile().name
+        self.__download_file(url,tmp_file)
+        self.tarfile.add(tmp_file,img_contextpath)
+        os.remove(tmp_file)
+
+    """
+    Download the given url into the given outdir with context filetree structure
+    """
+    def __download_file_into_filetree(self,img_contextpath,url):
+        # define outdir and outfile name
+        outdir=os.path.join(self.downloads_folder,os.path.dirname(img_contextpath))
+        outfile=os.path.join(self.downloads_folder,img_contextpath)
+        if os.path.isfile(outfile):
+            raise FileExists
+        RateLimiter.instance().acquire()
+        if self.verbose:
+            print("\t<"+threading.current_thread().name+"> download ",url)
+        # make sure the outfolder exists
+        if not os.path.exists(outdir):
+            os.makedirs(outdir)
+        self.__download_file(url,outfile)
+
+    """
+    Download the given url to the given outfile
+    """
+    def __download_file(self,url,outfile):
+        try:
+            urllib.request.urlretrieve(url,outfile)
+        except:
+            raise DownloadFailed
 
     """
     Download the given list of urls into the outfolder as filetree or tar_file
