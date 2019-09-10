@@ -59,6 +59,17 @@ Deinstall it with:
 python3 setup.py uninstall
 ```
 
+## Tests
+
+To run a single test use:
+```bash
+python3 -m unittest tests/DownloadTest.py
+```
+
+To run all available tests use:
+```bash
+python3 -m unittest discover tests/
+```
 
 
 ## Use it via **run.sh** script in project root or with **pxl_downloader** command after install

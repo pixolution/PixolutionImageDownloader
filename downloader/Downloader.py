@@ -54,7 +54,7 @@ class Downloader:
     Open a output file for the failed urls using logger (thread safe)
     """
     def __init_error_url_list(self,list_file):
-        logpath=os.path.join(self.downloads_folder,os.path.basename(list_file)+"_errors.log")
+        logpath=os.path.join(self.downloads_folder,os.path.basename(list_file)+"_failed_urls.log")
         # emtpy file
         open(logpath, 'w').close()
         self.logger = logging.getLogger('log')
@@ -139,16 +139,26 @@ class Downloader:
         # make sure the outfolder exists
         if not os.path.exists(outdir):
             os.makedirs(outdir)
-        self.__download_file(url,outfile)
+        self.__download_file_urlretrieve(url,outfile)
 
     """
-    Download the given url to the given outfile
+    Download the given url to the given outfile using urlretrieve
     """
-    def __download_file(self,url,outfile):
+    def __download_file_urlretrieve(self,url,outfile):
         try:
             urllib.request.urlretrieve(url,outfile)
-        except:
+        except Exception as e:
+            if self.verbose:
+                print(str(e))
             raise DownloadFailed
+
+
+    def __download_file_urlopen(self,url,outfile):
+        # Download the file from `url` and save it locally under `file_name`:
+        with urllib.request.urlopen(url) as response, open(outfile, 'wb') as out_file:
+            data = response.read() # a `bytes` object
+            out_file.write(data)
+
 
     """
     Download the given list of urls into the outfolder as filetree or tar_file
@@ -160,13 +170,14 @@ class Downloader:
             # start thread pool as iterateable with progress bar
             with concurrent.futures.ThreadPoolExecutor(self.number_threads) as executor:
                 if self.progressbar:
-                    urls_list=list()
-                    for url in urls:
-                        urls_list.append(url)
+                    # create list of all urls, skip emtpy lines
+                    urls_list=[line.strip().rstrip('\n') for line in f.readlines() if line.strip().rstrip('\n')]
                     list(tqdm(iterable=executor.map(self.__download_image,urls_list), total=len(urls_list),disable=self.verbose))
                 else:
                     for url in urls:
-                        executor.submit(self.__download_image,url)
+                        # skip emtpy lines
+                        if url.strip().rstrip('\n'):
+                            executor.submit(self.__download_image,url)
 
     """
     Read the url list, extract all image download pathes and
