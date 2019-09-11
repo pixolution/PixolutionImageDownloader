@@ -3,11 +3,12 @@ import os
 import shutil
 import tempfile
 import imghdr
+import subprocess
 from urllib.parse import urlparse
 
 from downloader.Downloader import Downloader
 
-class DownloadTestFileTree(unittest.TestCase):
+class DownloadTestTarfile(unittest.TestCase):
 
     def setUp(self):
         # create temp output directory, return absolute path
@@ -17,8 +18,8 @@ class DownloadTestFileTree(unittest.TestCase):
         number_threads=4
         ratelimit_downloads=10
         ratelimit_interval=1
-        verbose=True
-        store_into_tar=False
+        verbose=False
+        store_into_tar=True
         progressbar=False
         self.__downloader__ = Downloader(self.__downloads_temp_folder__, number_threads, ratelimit_downloads, ratelimit_interval,verbose,store_into_tar,progressbar)
         # test image urls file
@@ -37,9 +38,14 @@ class DownloadTestFileTree(unittest.TestCase):
         print("cleanup ",self.__downloads_temp_folder__)
         shutil.rmtree(self.__downloads_temp_folder__)
 
-    def test_simple_download_list_into_filetree(self):
+    def test_simple_download_list_into_tar(self):
         # let the downloader read the urls file and download the files
         self.__downloader__.download_list(self.__test_urls_file)
+        # now there should be a tar file in the download folder
+        tarfile=os.path.join(self.__downloads_temp_folder__,os.path.basename(self.__test_urls_file))+"_images.tar"
+        assert os.path.isfile(tarfile), "Expected tar file "+tarfile+" exists but it is missing."
+        # extract the content using linux OS tools
+        subprocess.call(["tar", "xf", tarfile,"-C",self.__downloads_temp_folder__])
         # now we assert that each file has been downloaded and properly named
         for file in self.__test_urls_image_context_path_list:
             expected_outfile=os.path.join(self.__downloads_temp_folder__,file)

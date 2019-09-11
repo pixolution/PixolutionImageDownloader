@@ -5,6 +5,7 @@ import concurrent.futures
 from threading import current_thread
 from urllib.parse import urlparse
 import urllib.request
+import requests
 import threading
 from tqdm import tqdm
 import logging
@@ -79,12 +80,12 @@ class Downloader:
             if self.store_into_tar:
                 self.__download_file_into_tar(img_contextpath,url)
             else:
-                self.__download_file_into_filetree(img_contextpath,url)
+                self.__download_file(img_contextpath,url)
             self.stats.registerSuccess()
         except FileExists:
             self.stats.registerSkipped()
             if self.verbose:
-                print("\t<"+threading.current_thread().name+" skip existing ",url)
+                print("\t<"+threading.current_thread().name+" skip existing ",os.path.join(self.downloads_folder,img_contextpath))
                 self.stats.printSumUpEvery(15)
             else:
                 self.stats.printSumUpEvery(100)
@@ -111,23 +112,26 @@ class Downloader:
     """
     def __download_file_into_tar(self,img_contextpath,url):
         try:
+            if self.verbose:
+                print("\t<"+threading.current_thread().name+"Checking for file "+img_contextpath+" in tarfile "+self.tarfile.name)
             self.tarfile.getmember(img_contextpath)
-            return true
-        except KeyError:
             raise FileExists
+        except KeyError as e:
+            if self.verbose:
+                print("\t<"+threading.current_thread().name+"> KeyError ",e,", guess the file does not exist")
         # respect the rate limit
         RateLimiter.instance().acquire()
         if self.verbose:
             print("\t<"+threading.current_thread().name+"> download ",url)
         tmp_file=tempfile.NamedTemporaryFile().name
-        self.__download_file(url,tmp_file)
+        self.__download_file(tmp_file,url)
         self.tarfile.add(tmp_file,img_contextpath)
         os.remove(tmp_file)
 
     """
     Download the given url into the given outdir with context filetree structure
     """
-    def __download_file_into_filetree(self,img_contextpath,url):
+    def __download_file(self,img_contextpath,url):
         # define outdir and outfile name
         outdir=os.path.join(self.downloads_folder,os.path.dirname(img_contextpath))
         outfile=os.path.join(self.downloads_folder,img_contextpath)
@@ -146,7 +150,11 @@ class Downloader:
     """
     def __download_file_urlretrieve(self,url,outfile):
         try:
-            urllib.request.urlretrieve(url,outfile)
+            # get a HTTP response object
+            r = requests.get(url)
+            # open output file, store data into it
+            with open(outfile,'wb') as f:
+                f.write(r.content)
         except Exception as e:
             if self.verbose:
                 print(str(e))
