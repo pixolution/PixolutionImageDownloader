@@ -101,7 +101,7 @@ optional arguments:
 Download options:
 ```bash
 user@pixolution:~$ pxl_downloader download --help
-usage: pxl_downloader download [-h] [--tarfile]
+usage: pxl_downloader download [-h] [--tarfile] [--progressbar]
                                [--ratelimit-interval RATELIMIT_INTERVAL]
                                [--ratelimit-downloads RATELIMIT_DOWNLOADS]
 
@@ -109,6 +109,9 @@ optional arguments:
   -h, --help            show this help message and exit
   --tarfile             Store downloaded images directly into tarfile instead
                         of file structure
+  --progressbar         Show a tqdm progress bar. This needs more RAM because
+                        we need to put the image file list into RAM before we
+                        can start.
   --ratelimit-interval RATELIMIT_INTERVAL
                         Interval in seconds (minimum 1.0) for the rate
                         limiter. Default is 1.0 seconds.
