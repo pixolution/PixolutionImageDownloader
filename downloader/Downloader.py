@@ -12,6 +12,7 @@ import logging
 import tempfile
 import pathlib
 
+from downloader.BoundedExecutor import BoundedExecutor
 from downloader.ThreadSafe import synchronized
 from downloader.RateLimiter import RateLimiter
 from downloader.Statistics import Stats
@@ -192,7 +193,7 @@ class Downloader:
             else:
                 print("threadpool starts to download now")
             # start thread pool as iterateable with progress bar
-            with concurrent.futures.ThreadPoolExecutor(self.number_threads) as executor:
+            with BoundedExecutor(500,self.number_threads) as executor:
                 if self.progressbar:
                     # create list of all urls, skip emtpy lines
                     urls_list=[line.strip().rstrip('\n') for line in f.readlines() if line.strip().rstrip('\n')]
