@@ -42,7 +42,7 @@ class DownloadTestTarfile(unittest.TestCase):
         # let the downloader read the urls file and download the files
         self.__downloader__.download_list(self.__test_urls_file)
         # now there should be a tar file in the download folder
-        tarfile=os.path.join(self.__downloads_temp_folder__,os.path.basename(self.__test_urls_file))+"_images.tar"
+        tarfile=os.path.join(self.__downloads_temp_folder__,os.path.basename(self.__test_urls_file))+"_files.tar"
         assert os.path.isfile(tarfile), "Expected tar file "+tarfile+" exists but it is missing."
         # extract the content using linux OS tools
         subprocess.call(["tar", "xf", tarfile,"-C",self.__downloads_temp_folder__])
