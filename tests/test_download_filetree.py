@@ -17,7 +17,7 @@ class DownloadTestFileTree(unittest.TestCase):
         number_threads=12
         ratelimit_downloads=60
         ratelimit_interval=1
-        verbose=True
+        verbose=False
         store_into_tar=False
         progressbar=False
         self.__downloader__ = Downloader(self.__downloads_temp_folder__, number_threads, ratelimit_downloads, ratelimit_interval,verbose,store_into_tar,progressbar)
