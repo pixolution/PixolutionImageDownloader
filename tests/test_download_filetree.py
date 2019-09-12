@@ -22,7 +22,7 @@ class DownloadTestFileTree(unittest.TestCase):
         progressbar=False
         self.__downloader__ = Downloader(self.__downloads_temp_folder__, number_threads, ratelimit_downloads, ratelimit_interval,verbose,store_into_tar,progressbar)
         # test image urls file
-        self.__test_urls_file="tests/test_image_urls.txt"
+        self.__test_urls_file="tests/test_image_urls_200.txt"
         # read list of urls
         with open(self.__test_urls_file) as f:
             self.__test_urls_list=[line.strip().rstrip('\n') for line in f.readlines() if line.strip().rstrip('\n')]
