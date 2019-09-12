@@ -32,6 +32,8 @@ def parse_parameters():
     parser_download.add_argument("--ratelimit-interval",type=int,help="Interval in seconds (minimum 1.0) for the rate limiter. Default is 1.0 seconds.", dest="ratelimit_interval", default=1.0,required=False)
     parser_download.add_argument("--ratelimit-downloads",type=int,help="Number of downloads per interval (default interval 1 second). If negative no rate limit is applied. Default is -1", dest="ratelimit_downloads", default=-1,required=False)
     parser_status = subparsers.add_parser("status", help="Check the download folder and the given image list file and print some stats about that")
+    parser_status.add_argument("--tarfile",help="Check for downloaded images directly in tarfile instead of file structure", dest="tarfile", default=False,required=False,action="store_true")
+    parser_status.add_argument("--progressbar",help="Show a tqdm progress bar. This needs more RAM because we need to put the image file list into RAM before we can start.", dest="progressbar", default=False,required=False,action="store_true")
     parser.add_argument("image_list_file",help="A file with urls defered by newlines")
     parser.add_argument("download_folder",help="A folder to download the images to.")
     try:
@@ -60,8 +62,8 @@ def main(args=None):
         downloader=Downloader(download_folder,args.threads,args.ratelimit_downloads,args.ratelimit_interval,args.verbose,args.tarfile,args.progressbar)
         downloader.download_list(image_list_file)
     elif (args.command == "status"):
-        downloader=Downloader(download_folder,args.threads,args.ratelimit_downloads,args.ratelimit_interval,args.verbose,args.tarfile,args.progressbar)
-        downloader.check_status(image_list_file,download_folder,args.threads)
+        downloader=Downloader(download_folder,args.threads,1,1,args.verbose,args.tarfile,args.progressbar)
+        downloader.check_status(image_list_file)
     else:
         print("Command not known: "+args.command)
 

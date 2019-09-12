@@ -45,3 +45,6 @@ class Stats:
         rate=round(float(numTotal)/float(duration))
         print("Ok: %s  Fail: %s  Empty lines: %s  Skipped: %s Total: %s Running=%ss Rate=%s #/s\n" % (self.numSuccess,self.numFailure,self.numInvalid,self.numSkipped,numTotal,round(duration),rate))
         print("")
+
+    def printStatus(self, num_total):
+        print("Total: %s   Already downloaded: %s  Downloads remaining: %s\n" % (num_total,self.numSkipped,num_total-self.numSkipped))
