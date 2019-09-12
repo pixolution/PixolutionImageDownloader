@@ -123,8 +123,12 @@ class Downloader:
             print("\t<"+threading.current_thread().name+"> download ",url)
         tmp_file=tempfile.NamedTemporaryFile().name
         self.__download_file(tmp_file,url)
-        self.tarfile.add(tmp_file,img_contextpath)
+        self.__add_image_to_tarfile(tmp_file,img_contextpath)
         os.remove(tmp_file)
+
+    @synchronized
+    def __add_image_to_tarfile(self,file,context_path):
+        self.tarfile.add(file,context_path)
 
     """
     Download the given url into the given outdir with context filetree structure
