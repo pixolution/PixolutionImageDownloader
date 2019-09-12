@@ -73,8 +73,6 @@ class Downloader:
         if not len(url)>0:
             self.stats.registerInvalid()
             return
-        if self.verbose:
-            print("download_image",url)
         img_contextpath=urlparse(url).path[1:]
         try:
             if self.store_into_tar:
@@ -143,18 +141,13 @@ class Downloader:
         # make sure the outfolder exists
         if not os.path.exists(outdir):
             os.makedirs(outdir)
-        self.__download_file_urlretrieve(url,outfile)
-
-    """
-    Download the given url to the given outfile using urlretrieve
-    """
-    def __download_file_urlretrieve(self,url,outfile):
         try:
             # get a HTTP response object
             r = requests.get(url)
             # open output file, store data into it
             with open(outfile,'wb') as f:
                 f.write(r.content)
+            r.close()
         except Exception as e:
             if self.verbose:
                 print(str(e))
