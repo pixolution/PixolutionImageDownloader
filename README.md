@@ -8,7 +8,8 @@ It provides the following features:
 * Preserves the context path of the images (http://foo.bar/imgs/abs/img.jpg is stored into **img/abs/img.jpg**)
 * Creates a file **img_list_name.txt_errors.log** containing failed images
 * Can store images into download folder tree or directly into a tar file
-* Download progress bar with downloads/second (using tqdm)
+* Low memory usage even with huge url lists by using BoundedExecutor that create threads in chunks
+* Download progress bar with downloads/second (using tqdm, but big memory footprint)
 
 ## Develop
 
