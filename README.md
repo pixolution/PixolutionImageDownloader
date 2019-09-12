@@ -63,7 +63,7 @@ python3 setup.py uninstall
 
 To run a single test use:
 ```bash
-python3 -m unittest tests/DownloadTest.py
+python3 -m unittest tests/test_download_filetree.py
 ```
 
 To run all available tests use:
