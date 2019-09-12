@@ -36,7 +36,7 @@ class DownloadTestTarfile(unittest.TestCase):
     def tearDown(self):
         # delete temp output directory
         print("cleanup ",self.__downloads_temp_folder__)
-        #shutil.rmtree(self.__downloads_temp_folder__)
+        shutil.rmtree(self.__downloads_temp_folder__)
 
     def test_simple_download_list_into_tar(self):
         # let the downloader read the urls file and download the files
